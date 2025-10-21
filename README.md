@@ -8,6 +8,7 @@
 
 ---
 ## Jump to: [Quick Start with the project](#quick-start-with-the-project)
+<video controls src="quick.mp4" title="Title"></video>
 ---
 
 ## Purpose
