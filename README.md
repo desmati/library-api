@@ -6,12 +6,13 @@
 > You are free to use, study, modify, and distribute this software, but any derivative work must also be released under the same license.
 > See the [License](#license) section below for more details.
 
----
 ## Jump to: [Quick Start with the project](#quick-start-with-the-project)
+
 <video width="640" height="480" controls>
   <source type="video/mp4" src="https://desmati.com/blog/production-grade-api-system-with-dotnet-grpc-cqrs-microservices-architecture/quick.mp4">
 </video>
----
+
+[Watch a quick start video here](https://desmati.com/blog/production-grade-api-system-with-dotnet-grpc-cqrs-microservices-architecture/quick.mp4)
 
 ## Purpose
 
