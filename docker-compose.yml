@@ -1,0 +1,158 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: library-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-libuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-h03e1n_devPass}
+      POSTGRES_DB: ${POSTGRES_DB:-libdb}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-libuser} -d ${POSTGRES_DB:-libdb}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - library-network
+
+  # Seq Log Server
+  seq:
+    image: datalust/seq:latest
+    container_name: library-seq
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+    ports:
+      - "${SEQ_UI_PORT:-8081}:80"
+      - "${SEQ_INGESTION_PORT:-5341}:5341"
+    volumes:
+      - seq-data:/data
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:80/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - library-network
+
+  # Jaeger All-in-One
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    container_name: library-jaeger
+    restart: unless-stopped
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+    ports:
+      - "${JAEGER_UI_PORT:-16686}:16686"         # Jaeger UI
+      - "${JAEGER_OTLP_GRPC_PORT:-4317}:4317"    # OTLP gRPC receiver
+      - "${JAEGER_OTLP_HTTP_PORT:-4318}:4318"    # OTLP HTTP receiver
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:16686/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - library-network
+
+  # Library gRPC Service
+  library-grpc:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.grpc
+    container_name: library-grpc
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      seq:
+        condition: service_healthy
+      jaeger:
+        condition: service_healthy
+    environment:
+      # Database connection
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB:-libdb};Username=${POSTGRES_USER:-libuser};Password=${POSTGRES_PASSWORD:-h03e1n_devPass}"
+
+      # Logging
+      Serilog__MinimumLevel__Default: ${LOG_LEVEL:-Information}
+      Serilog__WriteTo__0__Name: Console
+      Serilog__WriteTo__1__Name: Seq
+      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+
+      # OpenTelemetry
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_SERVICE_NAME: library-grpc
+
+      # ASP.NET Core
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: http://+:5001
+    ports:
+      - "${GRPC_PORT:-5001}:5001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    networks:
+      - library-network
+
+  # Library API Gateway
+  library-api:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile.api
+    container_name: library-api
+    restart: unless-stopped
+    depends_on:
+      library-grpc:
+        condition: service_healthy
+    environment:
+      # gRPC Service URLs
+      GrpcServices__LibraryGrpc: http://library-grpc:5001
+
+      # Logging
+      Serilog__MinimumLevel__Default: ${LOG_LEVEL:-Information}
+      Serilog__WriteTo__0__Name: Console
+      Serilog__WriteTo__1__Name: Seq
+      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+
+      # OpenTelemetry
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_SERVICE_NAME: library-api
+
+      # ASP.NET Core
+      ASPNETCORE_ENVIRONMENT: ${ASPNETCORE_ENVIRONMENT:-Production}
+      ASPNETCORE_URLS: http://+:8080
+    ports:
+      - "${API_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    networks:
+      - library-network
+
+networks:
+  library-network:
+    driver: bridge
+    name: library-network
+
+volumes:
+  postgres-data:
+    driver: local
+    name: library-postgres-data
+  seq-data:
+    driver: local
+    name: library-seq-data

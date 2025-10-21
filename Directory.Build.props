@@ -1,0 +1,53 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+
+    <DebugSymbols>true</DebugSymbols>
+    <WarnOnPackingNonPackableProject>true</WarnOnPackingNonPackableProject>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+    <DebugType>embedded</DebugType>
+    <LangVersion>latest</LangVersion>
+    <ComVisible>false</ComVisible>
+    
+    <NoWarn></NoWarn>
+  </PropertyGroup>
+  <PropertyGroup>
+    <Company>Hossein Esmati</Company>
+    <Copyright>Hossein Esmati</Copyright>
+    <Deterministic>false</Deterministic>
+    
+    <!-- Major version number will always be the current year in yyyy format -->
+    <MajorVersionNumber>$([System.DateTime]::UtcNow.ToString(yyyy))</MajorVersionNumber>
+    
+    <!-- Minor version number will be determined by the road map -->
+    <MinorVersionNumber>$([System.DateTime]::UtcNow.ToString(MM))</MinorVersionNumber>
+    
+    <!-- Build version number will be determined the tech lead upon releasing a new version containing any breaking change(s) -->
+    <BuildVersionNumber>$([System.DateTime]::UtcNow.ToString(dd))</BuildVersionNumber>
+    
+    <!-- Patch version number should increased by each publish of the app -->
+    <!--
+			DO NOT make use of the AssemblyVersionAttribute attribute that specifies an asterisk:
+			1- Makes the build outputs non-reproducible.
+			2- If the project sets Deterministic build property to true an error CS8357 is reported by the compiler.
+			3- Might degrade build performance, as it prevents build from caching compiler outputs.
+			4- Is incompatible with the Edit & Continue and Hot Reload features.
+		-->
+    <PatchVersionNumber>3</PatchVersionNumber>
+    
+    <Version>$(MajorVersionNumber).$(MinorVersionNumber).$(BuildVersionNumber).$(PatchVersionNumber)</Version>
+    <!--<GeneratePackageOnBuild>true</GeneratePackageOnBuild>-->
+    <GenerateAssemblyFileVersionAttribute>true</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
+    <GenerateAssemblyTitleAttribute>true</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyConfigurationAttribute>true</GenerateAssemblyConfigurationAttribute>
+    <GenerateAssemblyCompanyAttribute>true</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyProductAttribute>true</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>true</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>true</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>true</GenerateAssemblyInformationalVersionAttribute>
+  </PropertyGroup>
+</Project>

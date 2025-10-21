@@ -1,0 +1,12 @@
+{
+  "profiles": {
+    "Library.FunctionalTests.Grpc": {
+      "commandName": "Project",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "applicationUrl": "https://localhost:61153;http://localhost:61154"
+    }
+  }
+}

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package library.inventory.v1;
+option csharp_namespace = "Library.Contracts.Inventory.V1";
+
+message TimeRange {
+  string start = 1;  // ISO 8601
+  string end = 2;    // ISO 8601
+}
+
+message MostBorrowedRequest {
+  int32 top = 1;
+  TimeRange range = 2;
+}
+
+message BookCount {
+  string bookId = 1;
+  string title = 2;
+  string author = 3;
+  int32 pageCount = 4;
+  int64 borrowCount = 5;
+}
+
+message MostBorrowedResponse {
+  repeated BookCount items = 1;
+}
+
+message AlsoBorrowedRequest {
+  string bookId = 1;
+  int32 top = 2;
+  TimeRange range = 3;
+}
+
+message AlsoBorrowedItem {
+  string bookId = 1;
+  string title = 2;
+  string author = 3;
+  int64 coBorrowCount = 4;
+}
+
+message AlsoBorrowedResponse {
+  repeated AlsoBorrowedItem items = 1;
+}
+
+service InventoryService {
+  rpc GetMostBorrowedBooks(MostBorrowedRequest) returns (MostBorrowedResponse);
+  rpc GetAlsoBorrowedBooks(AlsoBorrowedRequest) returns (AlsoBorrowedResponse);
+}

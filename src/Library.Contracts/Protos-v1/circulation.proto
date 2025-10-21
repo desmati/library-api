@@ -1,0 +1,28 @@
+syntax = "proto3";
+
+package library.circulation.v1;
+option csharp_namespace = "Library.Contracts.Circulation.V1";
+
+message BorrowBookRequest {
+  string userId = 1;
+  string bookId = 2;
+  string borrowedAt = 3;  // ISO 8601
+}
+
+message BorrowBookResponse {
+  string loanId = 1;
+}
+
+message ReturnBookRequest {
+  string loanId = 1;
+  string returnedAt = 2;  // ISO 8601
+}
+
+message ReturnBookResponse {
+  bool success = 1;
+}
+
+service CirculationService {
+  rpc BorrowBook(BorrowBookRequest) returns (BorrowBookResponse);
+  rpc ReturnBook(ReturnBookRequest) returns (ReturnBookResponse);
+}

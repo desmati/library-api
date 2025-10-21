@@ -1,0 +1,50 @@
+syntax = "proto3";
+// Dates in ISO 8601 format
+
+package library.useractivity.v1;
+option csharp_namespace = "Library.Contracts.UserActivity.V1";
+
+message TimeRange {
+  string start = 1;
+  string end = 2;
+}
+
+message TopBorrowersRequest {
+  int32 top = 1;
+  TimeRange range = 2;
+}
+
+message Borrower {
+  string userId = 1;
+  string fullName = 2;
+  int64 borrowCount = 3;
+}
+
+message TopBorrowersResponse {
+  repeated Borrower items = 1;
+}
+
+message ReadingPaceRequest {
+  string userId = 1;
+  TimeRange range = 2;
+}
+
+message ReadingPaceItem {
+  string bookId = 1;
+  string title = 2;
+  int32 pages = 3;
+  double days = 4;
+  double pagesPerDay = 5;
+  string borrowedAt = 6;
+  string returnedAt = 7;
+}
+
+message ReadingPaceResponse {
+  double aggregatePagesPerDay = 1;
+  repeated ReadingPaceItem items = 2;
+}
+
+service UserActivityService {
+  rpc GetTopBorrowers(TopBorrowersRequest) returns (TopBorrowersResponse);
+  rpc GetReadingPace(ReadingPaceRequest) returns (ReadingPaceResponse);
+}
