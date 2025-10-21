@@ -8,7 +8,9 @@
 
 ---
 ## Jump to: [Quick Start with the project](#quick-start-with-the-project)
-<video controls src="quick.mp4" title="Title"></video>
+<video width="640" height="480" controls>
+  <source type="video/mp4" src="https://desmati.com/blog/production-grade-api-system-with-dotnet-grpc-cqrs-microservices-architecture/quick.mp4">
+</video>
 ---
 
 ## Purpose
